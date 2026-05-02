@@ -47,6 +47,8 @@ app.get('/auth/google',  passport.authenticate('google', { scope: ['profile','em
 
 // Route Middlewares
  app.use('/api/user', authRoute);
+ app.use('/api/teacher', authRoute);
+ app.use('/api/parent', authRoute);
 
 
 

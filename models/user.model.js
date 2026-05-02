@@ -23,7 +23,7 @@ User.userDetailsByEmail = async (req) => {
 };
 
 User.insertUser = async (req) => {
-	let sqlQuery = "INSERT INTO users SET name='"+req.name+"', email='"+req.email+"', password='"+req.password+"',profile_image='"+req.profile_image+"', role_id='"+req.role_id+"', created_at= now()";
+	let sqlQuery = "INSERT INTO users SET name='"+req.name+"', email='"+req.email+"', phone='"+req.phone+"', password='"+req.password+"',profile_image='"+req.profile_image+"', gender='"+req.gender+"', date_of_birth='"+req.date_of_birth+"', address='"+req.address+"',status='"+req.status+"', role_id='"+req.role_id+"', created_at= now()";
 	let insert = await sql.query(sqlQuery);
 	if (insert.insertId) {
         return insert.insertId;
