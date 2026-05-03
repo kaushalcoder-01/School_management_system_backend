@@ -17,7 +17,7 @@ module.exports = {
 	ADMIN_ROLE_ID           : 1,
     TEACHER_ROLE_ID         : 2,
     STUDENT_ROLE_ID         : 3,
-    PARENT_ROLE_ID: 4,
+    PARENT_ROLE_ID          : 4,
 	REMTOKEN_EXPIRY         : '7d',
 	TOKEN_EXPIRY            : '12h'
 };
