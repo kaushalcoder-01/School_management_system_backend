@@ -28,7 +28,7 @@ exports.addTeacher = async (req, res) => {
         });
         res.status(201).json({
             success: true,
-            message: "User added successfully",
+            message: "Teacher added successfully",
             user_id: addUser
         });
 

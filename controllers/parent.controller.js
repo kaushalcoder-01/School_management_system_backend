@@ -28,7 +28,7 @@ exports.addParent = async (req, res) => {
         });
         res.status(201).json({
             success: true,
-            message: "User added successfully",
+            message: "Parent added successfully",
             user_id: addUser
         });
 

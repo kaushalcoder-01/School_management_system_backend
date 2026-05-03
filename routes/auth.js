@@ -4,6 +4,7 @@ const { isAdmin, isTeacherOrAdmin }       = require('../helpers/rolemiddleware.h
 const userController     = require('../controllers/user.controller');
 const teacherController  = require('../controllers/teacher.controller');
 const parentController   = require('../controllers/parent.controller');
+const studentController   = require('../controllers/student.controller');
 
 router.post('/login', userController.login);
 router.post('/adduser', loggedIn, isAdmin, userController.addUser);
@@ -16,5 +17,8 @@ router.post('/addteacher', loggedIn, isAdmin, teacherController.addTeacher);
 
 //parents
 router.post('/addparent', loggedIn, isTeacherOrAdmin, parentController.addParent);
+
+//students
+router.post('/addstudent', loggedIn, isTeacherOrAdmin, studentController.addStudent);
 
 module.exports = router;
