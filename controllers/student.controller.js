@@ -45,7 +45,7 @@ exports.addStudent = async (req, res) => {
         await Student.insertStudent({
             ...req.body,
             user_id: addUser,
-      });
+        });
         res.status(201).json({
             success: true,
             message: "Student added successfully",
@@ -54,6 +54,54 @@ exports.addStudent = async (req, res) => {
 
     } catch (err) {
         console.log(err);
+        res.status(500).send("Internal server error");
+    }
+}
+
+exports.studentDetailsById = async (req, res) => {
+    try {
+        const rows = await Student.getStudentById(req.body);
+
+        if (!rows.length) {
+            return res.status(404).send("Student not found");
+        }
+
+        // Student info (take first row)
+        const student = {
+            student_id: rows[0].student_id,
+            name: rows[0].name,
+            email: rows[0].email,
+            phone: rows[0].phone,
+            gender: rows[0].gender,
+            date_of_birth: rows[0].date_of_birth,
+            address: rows[0].address,
+            profile_image: rows[0].profile_image,
+            status: rows[0].status,
+
+            admission_no: rows[0].admission_no,
+            roll_no: rows[0].roll_no,
+            admission_date: rows[0].admission_date,
+            blood_group: rows[0].blood_group,
+            academic_year: rows[0].academic_year,
+
+            class_name: rows[0].class_name,
+            section_name: rows[0].section_name,
+            class_teacher_name: rows[0].class_teacher_name
+        };
+
+        // Parents array
+        const parents = rows.map(r => ({
+            name: r.parent_name,
+            relation: r.parent_relation
+        }));
+
+        res.status(200).json({
+            student,
+            parents
+        });
+
+
+    } catch (err) {
         res.status(500).send("Internal server error");
     }
 }

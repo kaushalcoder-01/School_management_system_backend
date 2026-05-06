@@ -20,5 +20,6 @@ router.post('/addparent', loggedIn, isTeacherOrAdmin, parentController.addParent
 
 //students
 router.post('/addstudent', loggedIn, isTeacherOrAdmin, studentController.addStudent);
+router.get('/studentdetails', loggedIn, isTeacherOrAdmin, studentController.studentDetailsById);
 
 module.exports = router;
