@@ -36,6 +36,12 @@ exports.addStudent = async (req, res) => {
                 message: "Invalid section for class"
             });
         }
+        const nextRoll = await Student.getNextRollNo(req.body);
+        const rollNo = nextRoll[0].next_roll_no;
+
+        const nextAdmission = await Student.getNextAdmissionNo();
+        const admissionNo = 'ADM' + String(nextAdmission[0].next_id).padStart(4, '0');
+
         let salt = await bcrypt.genSalt(10);
         req.body.password = await bcrypt.hash(req.body.password, salt);
         let addUser = await User.insertUser({
@@ -45,6 +51,8 @@ exports.addStudent = async (req, res) => {
         await Student.insertStudent({
             ...req.body,
             user_id: addUser,
+            roll_no: rollNo,
+            admission_no: admissionNo
         });
         res.status(201).json({
             success: true,
@@ -62,12 +70,15 @@ exports.studentDetailsById = async (req, res) => {
     try {
         const rows = await Student.getStudentById(req.body);
 
-        if (!rows.length) {
-            return res.status(404).send("Student not found");
+         if (!rows.length) {
+            return res.status(404).json({
+                success: false,
+                message: "Student not found"
+            });
         }
 
         // Student info (take first row)
-        const student = {
+        const response = {
             student_id: rows[0].student_id,
             name: rows[0].name,
             email: rows[0].email,
@@ -86,22 +97,35 @@ exports.studentDetailsById = async (req, res) => {
 
             class_name: rows[0].class_name,
             section_name: rows[0].section_name,
-            class_teacher_name: rows[0].class_teacher_name
+            class_teacher_name: rows[0].class_teacher_name,
+            parents: []
         };
 
         // Parents array
-        const parents = rows.map(r => ({
-            name: r.parent_name,
-            relation: r.parent_relation
-        }));
-
-        res.status(200).json({
-            student,
-            parents
+        rows.forEach(r => {
+            if (r.parent_name) {
+                response.parents.push({
+                    name: r.parent_name,
+                    relation: r.parent_relation
+                });
+            }
         });
+
+        res.status(200).json(response);
 
 
     } catch (err) {
+        res.status(500).send("Internal server error");
+    }
+}
+
+exports.studentListByClassAndSection = async (req, res) => {
+    try {
+        let student = await Student.getStudentList(req.body);
+        res.status(200).send(student);
+    }
+    catch (err) {
+        console.log(err);
         res.status(500).send("Internal server error");
     }
 }

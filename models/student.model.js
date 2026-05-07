@@ -24,4 +24,36 @@ Student.getStudentById = async (req) => {
     }
 }
 
+Student.getStudentList = async (req) => {
+    let sqlQuery = "SELECT st.id AS student_id, ut.name, ut.email, ut.phone, ut.gender, ut.profile_image, ut.status, st.admission_no, st.roll_no, st.academic_year, cl.name AS class_name, sec.name AS section_name, tut.name AS class_teacher_name, GROUP_CONCAT(DISTINCT CONCAT(pu.name, ' (', sp.relation, ')')) AS parents FROM students st INNER JOIN users ut ON st.user_id = ut.id INNER JOIN classes cl ON st.class_id = cl.id INNER JOIN sections sec ON st.section_id = sec.id LEFT JOIN teachers tt ON sec.class_teacher_id = tt.id LEFT JOIN users tut ON tt.user_id = tut.id LEFT JOIN student_parents sp ON st.id = sp.student_id LEFT JOIN parents p ON sp.parent_id = p.id LEFT JOIN users pu ON p.user_id = pu.id WHERE st.class_id = '" + req.class_id + "' AND st.section_id = '" + req.section_id + "' GROUP BY st.id ORDER BY st.id DESC;";
+    let rows = await sql.query(sqlQuery);
+    if (rows.length) {
+        return rows;
+    } else {
+        return [];
+    }
+}
+
+Student.getNextRollNo = async (req) => {
+
+    let sqlQuery = "SELECT  COALESCE(MAX(CAST(roll_no AS UNSIGNED)), 0) + 1 AS next_roll_no  FROM students WHERE class_id = '" + req.class_id + "' AND section_id = '" + req.section_id + "'";
+    let rows = await sql.query(sqlQuery);
+    if (rows.length) {
+        return rows;
+    } else {
+        return [];
+    }
+};
+
+Student.getNextAdmissionNo = async () => {
+
+    let sqlQuery = " SELECT IFNULL(MAX(id), 0) + 1 AS next_id FROM students";
+    let rows = await sql.query(sqlQuery);
+      if (rows.length) {
+        return rows;
+    } else {
+        return [];
+    }
+};
+
 module.exports = Student;

@@ -16,15 +16,19 @@ exports.addTeacher = async (req, res) => {
         if (existingUser.length > 0) {
             return res.status(400).send("Email already exists");
         }
+                const nextEmployee = await Teacher.getNextEmployeeCode();
+        const employeeCode = 'EMP' + String(nextEmployee[0].next_id).padStart(4, '0');
+
         let salt = await bcrypt.genSalt(10);
         req.body.password = await bcrypt.hash(req.body.password, salt);
         let addUser = await User.insertUser({
             ...req.body,
             role_id: 2
         });
-        await Teacher.insertTeacher({
+     await Teacher.insertTeacher({
             ...req.body,
-            user_id: addUser
+            user_id: addUser,
+            employee_code:employeeCode
         });
         res.status(201).json({
             success: true,
@@ -33,6 +37,18 @@ exports.addTeacher = async (req, res) => {
         });
 
     } catch (err) {
+        console.log(err);
+        res.status(500).send("Internal server error");
+    }
+}
+
+exports.teacherListByClassAndSection = async (req, res) => {
+    try {
+        let classbyid = await Teacher.getTeacherList(req.body);
+        console.log(classbyid)
+        res.status(200).send(classbyid);
+    }
+    catch (err) {
         console.log(err);
         res.status(500).send("Internal server error");
     }

@@ -12,7 +12,8 @@ router.post('/adduser', loggedIn, isAdmin, userController.addUser);
 
 //teachers
 router.post('/addteacher', loggedIn, isAdmin, teacherController.addTeacher);
-//router.get('/userdetails', loggedIn, userController.getUserDetailsById);
+router.post('/teacherlist', loggedIn, isTeacherOrAdmin, teacherController.teacherListByClassAndSection);
+
 
 
 //parents
@@ -21,5 +22,6 @@ router.post('/addparent', loggedIn, isTeacherOrAdmin, parentController.addParent
 //students
 router.post('/addstudent', loggedIn, isTeacherOrAdmin, studentController.addStudent);
 router.get('/studentdetails', loggedIn, isTeacherOrAdmin, studentController.studentDetailsById);
+router.post('/studentlist', loggedIn, isTeacherOrAdmin, studentController.studentListByClassAndSection);
 
 module.exports = router;
