@@ -129,3 +129,64 @@ exports.studentListByClassAndSection = async (req, res) => {
         res.status(500).send("Internal server error");
     }
 }
+
+exports.markAttendance = async (req, res) => {
+
+    try {
+
+        const attendanceData = req.body.attendance;
+       for (let item of attendanceData) {
+
+            await Student.markAttendance({
+                student_id: item.student_id,
+                date: req.body.attendance_date,
+                status: item.status,
+                marked_by: req.body.marked_by
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message:  "Attendance marked successfully"
+        });
+
+    } catch (err) {
+        console.log(err);
+             if (err.code === 'ER_DUP_ENTRY') {
+
+            return res.status(400).json({
+                success: false,
+                message:"Attendance already marked for this date"
+            });
+        }
+        res.status(500).send(
+            "Internal server error"
+        );
+    }
+};
+
+exports.studentAttendanceList = async (req, res) => {
+    try {
+        let student = await Student.getAttendanceList(req.body);
+        res.status(200).send(student);
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).send("Internal server error");
+    }
+}
+
+exports.getStudentAttendanceById = async (req, res) => {
+
+    try {
+        let attendance = await Student.getAttendanceById(req.body);
+        res.status(200).json({
+            success: true,
+            data: attendance
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Internal server error");
+    }
+};

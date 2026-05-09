@@ -56,4 +56,36 @@ Student.getNextAdmissionNo = async () => {
     }
 };
 
+Student.markAttendance = async (req) => {
+    let sqlQuery = "INSERT INTO attendance SET student_id='" + req.student_id + "', date='" + req.date  + "',status='" + req.status + "', marked_by='" + req.marked_by + "'";       
+ let rows = await sql.query(sqlQuery);
+      if (rows.length) {
+        return rows;
+    } else {
+        return [];
+    }
+};
+
+Student.getAttendanceList = async (req) => {
+
+    let sqlQuery = "SELECT st.id AS student_id, u.name, st.roll_no, att.date, att.status, att.marked_by FROM students st INNER JOIN users u ON st.user_id = u.id LEFT JOIN attendance att ON st.id = att.student_id AND att.date = CURDATE() WHERE st.class_id = '" + req.class_id + "' AND st.section_id = '" + req.section_id + "'";
+    let rows = await sql.query(sqlQuery);
+    if (rows.length) {
+        return rows;
+    } else {
+        return [];
+    }
+};
+
+Student.getAttendanceById = async (req, res) => {
+
+    let sqlQuery = "SELECT date, status FROM attendance  WHERE student_id='" + req.student_id + "' AND MONTH(date)='" + req.month + "' AND YEAR(date)='" + req.year + "' ORDER BY date ASC";
+    let rows = await sql.query(sqlQuery);
+    if (rows.length) {
+        return rows;
+    } else {
+        return [];
+    }
+};
+
 module.exports = Student;
