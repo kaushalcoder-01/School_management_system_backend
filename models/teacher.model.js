@@ -35,4 +35,27 @@ Teacher.getNextEmployeeCode = async () => {
     }
 };
 
+Teacher.getClassList = async () => {
+
+    let sqlQuery = "SELECT id, name FROM classes ORDER BY id ASC";
+    let rows = await sql.query(sqlQuery);
+    if (rows.length) {
+        return rows;
+    } else {
+        return [];
+    }
+};
+
+Teacher.getSectionList = async (req) => {
+    let sqlQuery = "SELECT id, name FROM sections WHERE class_id='" + req.class_id + "' ORDER BY name ASC";
+    
+    let rows = await sql.query(sqlQuery);
+        console.log(rows)
+    if (rows.length) {
+        return rows;
+    } else {
+        return [];
+    }
+};
+
 module.exports = Teacher;

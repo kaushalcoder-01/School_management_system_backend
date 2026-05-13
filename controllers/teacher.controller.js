@@ -53,3 +53,33 @@ exports.teacherListByClassAndSection = async (req, res) => {
         res.status(500).send("Internal server error");
     }
 }
+
+
+exports.getClassList = async (req, res) => {
+    try {
+        let classList = await Teacher.getClassList();
+
+        res.status(200).json({
+            success: true,
+            data: classList
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send( "Internal server error" );
+    }
+};
+
+exports.getSectionList = async (req, res) => {
+    try {
+        let sectionList =await Teacher.getSectionList(req.body);
+        res.status(200).json({
+            success: true,
+            data: sectionList
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send( "Internal server error");
+    }
+};
