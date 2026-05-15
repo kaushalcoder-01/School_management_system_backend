@@ -5,26 +5,28 @@ const userController     = require('../controllers/user.controller');
 const teacherController  = require('../controllers/teacher.controller');
 const parentController   = require('../controllers/parent.controller');
 const studentController   = require('../controllers/student.controller');
+const upload             = require('../helpers/uploadmiddleware.helper');
 
 router.post('/login', userController.login);
+router.post( "/setup-password", userController.setupPassword);
 router.post('/adduser', loggedIn, isAdmin, userController.addUser);
 
 
 //teachers
 router.post('/addteacher', loggedIn, isAdmin, teacherController.addTeacher);
 router.post('/teacherlist', loggedIn, isTeacherOrAdmin, teacherController.teacherListByClassAndSection);
-
-
+router.get(  '/classlist', loggedIn, isTeacherOrAdmin, teacherController.getClassList);
+router.post(  '/sectionlist', loggedIn, isTeacherOrAdmin, teacherController.getSectionList);
 
 //parents
 router.post('/addparent', loggedIn, isTeacherOrAdmin, parentController.addParent);
 
 //students
-router.post('/addstudent', loggedIn, isTeacherOrAdmin, studentController.addStudent);
+router.post('/addstudent', loggedIn, isTeacherOrAdmin, upload.single('profile_image'),studentController.addStudent);
 router.get('/studentdetails', loggedIn, isTeacherOrAdmin, studentController.studentDetailsById);
-router.post('/studentlist', loggedIn, isTeacherOrAdmin, studentController.studentListByClassAndSection);
-router.post('/markattendance', loggedIn, isTeacherOrAdmin, studentController.markAttendance);
-router.post('/studentattendancelist', loggedIn, isTeacherOrAdmin, studentController.studentAttendanceList);
+router.get('/studentlist', loggedIn, isTeacherOrAdmin, studentController.studentListByClassAndSection);
+router.get('/markattendance', loggedIn, isTeacherOrAdmin, studentController.markAttendance);
+router.get('/studentattendancelist', loggedIn, isTeacherOrAdmin, studentController.studentAttendanceList);
 router.post('/studentattendancebyid', loggedIn, isTeacherOrAdmin, studentController.getStudentAttendanceById);
 
 module.exports = router;
