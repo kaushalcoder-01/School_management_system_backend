@@ -84,57 +84,102 @@ exports.addStudent = async (req, res) => {
             token
         );
 
-        if (father_create_login) {
-            const parentCode = 'PAR' + Date.now();
-            const parentToken = crypto.randomBytes(32).toString("hex");
-            const fatherUserId = await User.insertUser({
-                username: parentCode,
-                name: father_name,
-                email: father_email,
-                phone: father_phone,
-                status: "ACTIVE",
-                role_id: 4,
-                verification_token: parentToken,
-                token_expiry: mysqlDate,
-                password_setup_required: 1
-            });
+        let fatherParentId = null;
+        // SEARCH EXISTING PARENT
 
-            const fatherParentId =
-                await Parent.insertParent({
+        const existingFather = await Parent.getParentByPhoneOrEmail({
+            phone: father_phone,
+            email: father_email
+        });
+
+        // ================= EXISTING =================
+
+        if (existingFather.length > 0) {
+            fatherParentId = existingFather[0].id;
+        }
+        else {
+            const nextParent = await Parent.getNextParentCode();
+            const parentCode = 'PAR' + String(nextParent[0].next_id).padStart(4, '0');
+            let fatherUserId = null;
+
+            // CREATE LOGIN ONLY IF ENABLED
+
+            if (father_create_login) {
+                const parentToken = crypto.randomBytes(32).toString("hex");
+                const fatherUserId = await User.insertUser({
+                    username: parentCode,
+                    name: father_name,
+                    email: father_email,
+                    phone: father_phone,
+                    gender: "Male",
+                    status: "ACTIVE",
+                    role_id: 4,
+                    date_of_birth: null,
+                    address: null,
+                    profile_image: null,
+                    verification_token: parentToken,
+                    token_expiry: mysqlDate,
+                    password_setup_required: 1
+                });
+                const fatherParentId = await Parent.insertParent({
                     user_id: fatherUserId,
                     parent_code: parentCode,
                     occupation: req.body.father_occupation,
                     emergency_contact: father_phone,
                     relation_with_student: "FATHER"
                 });
-            await Student.linkParent({
-                student_id: studentId,
-                parent_id: fatherParentId,
-                relation: "FATHER"
-            });
-            await MailService.sendSetupMail(
-                father_email,
-                parentCode,
-                parentToken
-            );
+                await Student.linkParent({
+                    student_id: studentId,
+                    parent_id: fatherParentId,
+                    relation: "FATHER"
+                });
+                await MailService.sendSetupMail(
+                    father_email,
+                    parentCode,
+                    parentToken
+                );
+            }
         }
-        if (mother_create_login) {
-            const parentCode = 'PAR' + (Date.now() + 1);
-            const parentToken = crypto.randomBytes(32).toString("hex");
-            const motherUserId = await User.insertUser({
-                username: parentCode,
-                name: mother_name,
-                email: mother_email,
-                phone: mother_phone,
-                status: "ACTIVE",
-                role_id: 4,
-                verification_token: parentToken,
-                token_expiry: mysqlDate,
-                password_setup_required: 1
-            });
+        let motherParentId = null;
+        // SEARCH EXISTING PARENT
 
-            const motherParentId =
-                await Parent.insertParent({
+        const existingMother = await Parent.getParentByPhoneOrEmail({
+            phone: mother_phone,
+            email: mother_email
+        });
+
+        // ================= EXISTING =================
+
+        if (existingMother.length > 0) {
+            motherParentId = existingMother[0].id;
+        }
+        else {
+            const nextParent = await Parent.getNextParentCode();
+            const parentCode = 'PAR' + String(nextParent[0].next_id).padStart(4, '0');
+            let fatherUserId = null;
+
+            // CREATE LOGIN ONLY IF ENABLED
+            if (mother_create_login) {
+                const nextParent = await Parent.getNextParentCode();
+                const parentCode = 'PAR' + String(nextParent[0].next_id).padStart(4, '0');
+                const parentToken = crypto.randomBytes(32).toString("hex");
+                const motherUserId = await User.insertUser({
+                    username: parentCode,
+                    name: mother_name,
+                    email: mother_email,
+                    phone: mother_phone,
+                    gender: "Female",
+                    status: "ACTIVE",
+                    role_id: 4,
+                    date_of_birth: null,
+                    address: null,
+                    profile_image: null,
+                    verification_token: parentToken,
+                    token_expiry: mysqlDate,
+                    password_setup_required: 1
+                });
+
+                const motherParentId = await Parent.insertParent({
                     user_id: motherUserId,
                     parent_code: parentCode,
                     occupation: req.body.mother_occupation,
@@ -142,16 +187,17 @@ exports.addStudent = async (req, res) => {
                     relation_with_student: "MOTHER"
                 });
 
-            await Student.linkParent({
-                student_id: studentId,
-                parent_id: motherParentId,
-                relation: "MOTHER"
-            });
-            await MailService.sendSetupMail(
-                mother_email,
-                parentCode,
-                parentToken
-            );
+                await Student.linkParent({
+                    student_id: studentId,
+                    parent_id: motherParentId,
+                    relation: "MOTHER"
+                });
+                await MailService.sendSetupMail(
+                    mother_email,
+                    parentCode,
+                    parentToken
+                );
+            }
         }
         res.status(201).json({
             success: true,
