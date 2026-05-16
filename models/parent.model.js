@@ -27,7 +27,7 @@ Parent.getNextParentCode = async () => {
 
 Parent.getParentByPhoneOrEmail = async (req) => {
 
-    let sqlQuery = "SELECT p.id,p.parent_code,p.user_id,u.name,u.phone,u.email FROM parents p LEFT JOIN users u ON p.user_id = u.id WHERE u.phone='" + req.phone + "' OR u.email='" + req.email + "'";
+    let sqlQuery = "SELECT p.id,p.parent_code,p.user_id,u.name,u.phone,u.email FROM parents p LEFT JOIN users u ON p.user_id = u.id WHERE u.phone='" + req.search + "' OR u.email='" + req.search + "'   OR p.parent_code='" + req.search + "'";
     let rows = await sql.query(sqlQuery);
     if (rows.length) {
         return rows;

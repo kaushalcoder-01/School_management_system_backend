@@ -43,7 +43,7 @@ exports.searchParent = async (req, res) => {
         const rows = await Parent.getParentByPhoneOrEmail(req.body);
         res.status(200).json({
             success: true,
-            data: rows
+            data: rows.length ? rows[0] : null
         });
     } catch (err) {
         console.log(err);

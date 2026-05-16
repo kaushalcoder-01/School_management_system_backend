@@ -20,6 +20,7 @@ router.post(  '/sectionlist', loggedIn, isTeacherOrAdmin, teacherController.getS
 
 //parents
 router.post('/addparent', loggedIn, isTeacherOrAdmin, parentController.addParent);
+router.post('/searchparent', loggedIn, isTeacherOrAdmin, parentController.searchParent);
 
 //students
 router.post('/addstudent', loggedIn, isTeacherOrAdmin, upload.single('profile_image'),studentController.addStudent);
