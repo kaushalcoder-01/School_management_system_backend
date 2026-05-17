@@ -1,71 +1,58 @@
 const nodemailer = require("nodemailer");
 
+const transporter = nodemailer.createTransport({
+  service: "gmail",
 
-let testAccount;
+  auth: {
+    user: "kaushalthewebwolves@gmail.com",
 
-async function createTransporter() {
+    pass: "dpae bnbt ghzx lxna",
+  },
+});
 
-    testAccount =
-        await nodemailer.createTestAccount();
+exports.sendSetupMail = async (email, username, token) => {
+  const setupLink = `http://localhost:8100/setup-password/${token}`;
 
-    return nodemailer.createTransport({
+  const info = await transporter.sendMail({
+    from: '"School ERP(2)" <kaushalthewebwolves@gmail.com>',
 
-        host: "smtp.ethereal.email",
+    to: email,
 
-        port: 587,
+    subject: "Setup Password",
 
-        secure: false,
+    html: `
 
-        auth: {
+      <div style="font-family: Arial; padding:20px;">
 
-            user: testAccount.user,
+        <h2>Welcome To School ERP</h2>
 
-            pass: testAccount.pass
-        }
-    });
-}
+        <p>
+          Username:
+          <b>${username}</b>
+        </p>
 
-exports.sendSetupMail = async (
-    email,
-    username,
-    token
-) => {
+        <p>
+          Click below button to setup password
+        </p>
 
-    const transporter =
-        await createTransporter();
+        <a
+          href="${setupLink}"
+          style="
+            background:#2563eb;
+            color:white;
+            padding:12px 20px;
+            border-radius:8px;
+            text-decoration:none;
+            display:inline-block;
+          ">
 
-    const setupLink =
-        `http://localhost:8100/setup-password/${token}`;
+          Setup Password
 
-    const info =
-        await transporter.sendMail({
+        </a>
 
-            from:
-                '"School ERP" <noreply@school.com>',
+      </div>
+    `,
+  });
 
-            to: email,
-
-            subject: "Setup Password",
-
-            html: `
-
-                <h2>Welcome To School ERP</h2>
-
-                <p>
-                Username:
-                <b>${username}</b>
-                </p>
-
-                <a href="${setupLink}">
-                    Setup Password
-                </a>
-            `
-        });
-
-    console.log(
-
-        "Preview URL:",
-        
-        nodemailer.getTestMessageUrl(info)
-    );
+  console.log("Mail Sent:", info.messageId);
 };
