@@ -24,10 +24,13 @@ router.post('/searchparent', loggedIn, isTeacherOrAdmin, parentController.search
 
 //students
 router.post('/addstudent', loggedIn, isTeacherOrAdmin, upload.single('profile_image'),studentController.addStudent);
+router.post('/editstudent/:id', loggedIn, isTeacherOrAdmin, upload.single('profile_image'),studentController.editStudent);
 router.get('/studentdetails', loggedIn, isTeacherOrAdmin, studentController.studentDetailsById);
 router.get('/studentlist', loggedIn, isTeacherOrAdmin, studentController.studentListByClassAndSection);
 router.get('/markattendance', loggedIn, isTeacherOrAdmin, studentController.markAttendance);
 router.get('/studentattendancelist', loggedIn, isTeacherOrAdmin, studentController.studentAttendanceList);
 router.post('/studentattendancebyid', loggedIn, isTeacherOrAdmin, studentController.getStudentAttendanceById);
+
+
 
 module.exports = router;

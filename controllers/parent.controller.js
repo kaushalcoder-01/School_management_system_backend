@@ -5,49 +5,63 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 exports.addParent = async (req, res) => {
-    try {
-        const { name, email, password } = req.body;
+  try {
+    const { name, email, password } = req.body;
 
-        if (!name || !email || !password) {
-            return res.status(400).send("Required fields missing");
-        }
-        const existingUser = await User.userDetailsByEmail({ email });
-
-        if (existingUser.length > 0) {
-            return res.status(400).send("Email already exists");
-        }
-        let salt = await bcrypt.genSalt(10);
-        req.body.password = await bcrypt.hash(req.body.password, salt);
-        let addUser = await User.insertUser({
-            ...req.body,
-            role_id: 4
-        });
-        await Parent.insertParent({
-            ...req.body,
-            user_id: addUser
-        });
-        res.status(201).json({
-            success: true,
-            message: "Parent added successfully",
-            user_id: addUser
-        });
-
-    } catch (err) {
-        console.log(err);
-        res.status(500).send("Internal server error");
+    if (!name || !email || !password) {
+      return res.status(400).send("Required fields missing");
     }
-}
+    const existingUser = await User.userDetailsByEmail({ email });
+
+    if (existingUser.length > 0) {
+      return res.status(400).send("Email already exists");
+    }
+    let salt = await bcrypt.genSalt(10);
+    req.body.password = await bcrypt.hash(req.body.password, salt);
+    let addUser = await User.insertUser({
+      ...req.body,
+      role_id: 4,
+    });
+    await Parent.insertParent({
+      ...req.body,
+      user_id: addUser,
+    });
+    res.status(201).json({
+      success: true,
+      message: "Parent added successfully",
+      user_id: addUser,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal server error");
+  }
+};
 
 exports.searchParent = async (req, res) => {
-    try {
-        const rows = await Parent.getParentByPhoneOrEmail(req.body);
-        res.status(200).json({
-            success: true,
-            data: rows.length ? rows[0] : null
-        });
-    } catch (err) {
-        console.log(err);
-        res.status(500).send("Internal server error");
-    }
+  try {
+    const rows = await Parent.getParentByPhoneOrEmail(req.body);
+    res.status(200).json({
+      success: true,
+      data: rows.length ? rows[0] : null,
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal server error");
+  }
+};
 
-}
+exports.generateUniqueParentCode = async (req, res) => {
+  let isExists = true;
+  let parentCode = "";
+
+  while (isExists) {
+    const randomNo = Math.floor(1000 + Math.random() * 9000);
+    parentCode = `PAR${randomNo}`;
+    const rows = await Parent.checkParentCodeExists({ parentCode: parentCode });
+    if (!rows.length) {
+      isExists = false;
+    }
+  }
+
+  return parentCode;
+};
