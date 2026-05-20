@@ -245,7 +245,7 @@ exports.addStudent = async (req, res) => {
 exports.editStudent = async (req, res) => {
   try {
     const studentData = await Student.getStudentById({
-student_id: req.params.id
+      student_id: req.params.id,
     });
 
     if (!studentData.length) {
@@ -260,7 +260,8 @@ student_id: req.params.id
     // ✅ UPDATE USER TABLE
     await User.updateUser({
       ...req.body,
-user_id: student.userId,    });
+      user_id: student.userId,
+    });
 
     // ✅ UPDATE STUDENT TABLE (IMPORTANT FIX)
     await Student.updateStudent({
@@ -323,8 +324,7 @@ user_id: student.userId,    });
     return res.status(200).json({
       success: true,
       message: "Student updated successfully",
-            data: student,
-
+      data: student,
     });
   } catch (err) {
     console.log(err);
@@ -337,8 +337,8 @@ user_id: student.userId,    });
 
 exports.studentDetailsById = async (req, res) => {
   try {
-    const rows = await Student.getStudentById(req.query);
 
+    const rows = await Student.getStudentById(req.query);
     if (!rows.length) {
       return res.status(404).json({
         success: false,
@@ -346,31 +346,44 @@ exports.studentDetailsById = async (req, res) => {
       });
     }
 
-    // Student info (take first row)
+    // GET SIBLINGS
+    const siblings = await Student.getStudentSiblings({
+      student_id: rows[0].studentId,
+    });
+
     const response = {
-student_id: req.params.id,
+
+      student_id: rows[0].studentId,
+
       userId: rows[0].userId,
+
       name: rows[0].name,
       email: rows[0].email,
       phone: rows[0].phone,
       gender: rows[0].gender,
+
       date_of_birth: rows[0].date_of_birth,
       address: rows[0].address,
+
       profile_image: rows[0].profile_image,
       status: rows[0].status,
 
       admission_no: rows[0].admission_no,
       roll_no: rows[0].roll_no,
+
       admission_date: rows[0].admission_date,
       blood_group: rows[0].blood_group,
       academic_year: rows[0].academic_year,
+
       attendance: rows.map((r) => ({
         date: r.date,
         status: r.attendance_status,
       })),
+
       class_name: rows[0].class_name,
       section_name: rows[0].section_name,
       class_teacher_name: rows[0].class_teacher_name,
+
       father_name: rows[0].father_name,
       father_phone: rows[0].father_phone,
       father_email: rows[0].father_email,
@@ -383,10 +396,19 @@ student_id: req.params.id,
 
       class_id: rows[0].class_id,
       section_id: rows[0].section_id,
+
+      siblings,
     };
 
-    res.status(200).json(response);
+    return res.status(200).json({
+      success: true,
+      data: response,
+    });
+
   } catch (err) {
+
+    console.log(err);
+
     return res.status(500).json({
       success: false,
       message: err.sqlMessage || err.message || "Internal server error",

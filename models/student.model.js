@@ -250,4 +250,47 @@ Student.getAttendanceById = async (req, res) => {
   }
 };
 
+Student.getStudentSiblings = async ({ student_id }) => {
+
+  let sqlQuery = `
+  
+    SELECT DISTINCT
+      st.id AS studentId,
+      ut.id AS userId,
+      ut.name,
+      ut.gender,
+      ut.profile_image,
+      st.roll_no,
+      cl.name AS class_name,
+      sec.name AS section_name,
+
+      CASE
+        WHEN ut.gender = 'Male' THEN 'Brother'
+        ELSE 'Sister'
+      END AS sibling_relation
+
+    FROM student_parents sp1
+
+    INNER JOIN student_parents sp2
+      ON sp1.parent_id = sp2.parent_id
+
+    INNER JOIN students st
+      ON sp2.student_id = st.id
+
+    INNER JOIN users ut
+      ON st.user_id = ut.id
+
+    INNER JOIN classes cl
+      ON st.class_id = cl.id
+
+    INNER JOIN sections sec
+      ON st.section_id = sec.id
+
+    WHERE sp1.student_id = '${student_id}'
+    AND sp2.student_id != '${student_id}'
+  `;
+
+  return await sql.query(sqlQuery);
+};
+
 module.exports = Student;

@@ -21,6 +21,8 @@ router.post(  '/sectionlist', loggedIn, isTeacherOrAdmin, teacherController.getS
 //parents
 router.post('/addparent', loggedIn, isTeacherOrAdmin, parentController.addParent);
 router.post('/searchparent', loggedIn, isTeacherOrAdmin, parentController.searchParent);
+router.get('/parentlist', loggedIn, isTeacherOrAdmin, parentController.parentList);
+router.get('/parentdetails', loggedIn, isTeacherOrAdmin, parentController.parentDetailsById);
 
 //students
 router.post('/addstudent', loggedIn, isTeacherOrAdmin, upload.single('profile_image'),studentController.addStudent);
