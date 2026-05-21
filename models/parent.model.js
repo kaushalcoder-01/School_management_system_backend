@@ -87,7 +87,7 @@ Parent.getParentByPhoneOrEmail = async (req) => {
 };
 
 Parent.getParentList = async () => {
-  let sqlQuery = "SELECT p.id AS parent_id, pu.id AS user_id, pu.name AS parent_name, pu.email AS parent_email, pu.phone AS parent_phone, pu.address, pu.status AS parent_status, pu.profile_image AS parent_profile_image, p.occupation, p.relation_with_student, st.id AS student_id, st.class_id, st.section_id, su.name AS student_name, su.email AS student_email, su.gender, st.roll_no, st.admission_no, cl.name AS class_name, sec.name AS section_name, sp.relation FROM parents p LEFT JOIN users pu ON p.user_id = pu.id LEFT JOIN student_parents sp ON p.id = sp.parent_id LEFT JOIN students st ON sp.student_id = st.id LEFT JOIN users su ON st.user_id = su.id LEFT JOIN classes cl ON st.class_id = cl.id LEFT JOIN sections sec ON st.section_id = sec.id ORDER BY p.id DESC";
+  let sqlQuery = "SELECT p.id AS parent_id, pu.id AS user_id, pu.name AS parent_name, pu.email AS parent_email, pu.phone AS parent_phone, pu.address, pu.is_login_enabled AS login_access,pu.status AS parent_status, pu.profile_image AS parent_profile_image, p.occupation, p.relation_with_student, st.id AS student_id, st.class_id, st.section_id, su.name AS student_name, su.email AS student_email, su.gender, st.roll_no, st.admission_no, cl.name AS class_name, sec.name AS section_name, sp.relation FROM parents p LEFT JOIN users pu ON p.user_id = pu.id LEFT JOIN student_parents sp ON p.id = sp.parent_id LEFT JOIN students st ON sp.student_id = st.id LEFT JOIN users su ON st.user_id = su.id LEFT JOIN classes cl ON st.class_id = cl.id LEFT JOIN sections sec ON st.section_id = sec.id WHERE  pu.is_login_enabled = 1  ORDER BY p.id DESC";
   let rows = await sql.query(sqlQuery);
   if (rows.length) {
     return rows;
@@ -101,35 +101,31 @@ Parent.getParentById = async ({ parent_id }) => {
   let sqlQuery = `
   
     SELECT 
-    
       p.id AS parent_id,
       pu.id AS user_id,
-
       pu.name AS parent_name,
       pu.email AS parent_email,
       pu.phone AS parent_phone,
       pu.address,
+      pu.gender  AS parent_gender,
       pu.profile_image AS parent_profile_image,
       pu.status AS parent_status,
-
       p.occupation,
       p.relation_with_student,
-
+      p.parent_code,
       st.id AS student_id,
       st.class_id,
       st.section_id,
       st.roll_no,
       st.admission_no,
-
       su.name AS student_name,
       su.email AS student_email,
       su.gender,
-
+      su.status,
+      su.profile_image,
       cl.name AS class_name,
       sec.name AS section_name,
-
       sp.relation
-
     FROM parents p
 
     LEFT JOIN users pu

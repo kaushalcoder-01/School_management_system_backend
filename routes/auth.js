@@ -11,15 +11,16 @@ router.post('/login', userController.login);
 router.post( "/setup-password", userController.setupPassword);
 router.post('/adduser', loggedIn, isAdmin, userController.addUser);
 
-
 //teachers
 router.post('/addteacher', loggedIn, isAdmin, teacherController.addTeacher);
-router.post('/teacherlist', loggedIn, isTeacherOrAdmin, teacherController.teacherListByClassAndSection);
+router.get('/teacherlist', loggedIn, isTeacherOrAdmin, teacherController.teacherListByClassAndSection);
+router.get('/teacherdetails', loggedIn, isTeacherOrAdmin, teacherController.getTeacherDetails);
 router.get(  '/classlist', loggedIn, isTeacherOrAdmin, teacherController.getClassList);
 router.post(  '/sectionlist', loggedIn, isTeacherOrAdmin, teacherController.getSectionList);
 
 //parents
-router.post('/addparent', loggedIn, isTeacherOrAdmin, parentController.addParent);
+// router.post('/addparent', loggedIn, isTeacherOrAdmin, parentController.addParent);
+router.post('/editparent/:id' ,loggedIn, isTeacherOrAdmin,upload.single('profile_image'),parentController.editParent);
 router.post('/searchparent', loggedIn, isTeacherOrAdmin, parentController.searchParent);
 router.get('/parentlist', loggedIn, isTeacherOrAdmin, parentController.parentList);
 router.get('/parentdetails', loggedIn, isTeacherOrAdmin, parentController.parentDetailsById);

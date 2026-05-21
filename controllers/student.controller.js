@@ -388,11 +388,13 @@ exports.studentDetailsById = async (req, res) => {
       father_phone: rows[0].father_phone,
       father_email: rows[0].father_email,
       father_occupation: rows[0].father_occupation,
+      father_login_access: Boolean(rows[0].login_access),
 
       mother_name: rows[0].mother_name,
       mother_phone: rows[0].mother_phone,
       mother_email: rows[0].mother_email,
       mother_occupation: rows[0].mother_occupation,
+      mother_login_access: Boolean(rows[0].login_access),
 
       class_id: rows[0].class_id,
       section_id: rows[0].section_id,

@@ -103,12 +103,13 @@ Student.getStudentById = async (req) => {
       fu.phone AS father_phone,
       fu.email AS father_email,
       fp.occupation AS father_occupation,
+      fu.is_login_enabled AS login_access,
 
       mu.name AS mother_name,
       mu.phone AS mother_phone,
       mu.email AS mother_email,
       mp.occupation AS mother_occupation,
-
+      mu.is_login_enabled AS login_access,
       att.date,
       att.status AS attendance_status
 

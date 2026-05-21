@@ -4,36 +4,93 @@ const config = require("../config/config");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-exports.addParent = async (req, res) => {
+// exports.addParent = async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
+
+//     if (!name || !email || !password) {
+//       return res.status(400).send("Required fields missing");
+//     }
+//     const existingUser = await User.userDetailsByEmail({ email });
+
+//     if (existingUser.length > 0) {
+//       return res.status(400).send("Email already exists");
+//     }
+//     let salt = await bcrypt.genSalt(10);
+//     req.body.password = await bcrypt.hash(req.body.password, salt);
+//     let addUser = await User.insertUser({
+//       ...req.body,
+//       role_id: 4,
+//     });
+//     await Parent.insertParent({
+//       ...req.body,
+//       user_id: addUser,
+//     });
+//     res.status(201).json({
+//       success: true,
+//       message: "Parent added successfully",
+//       user_id: addUser,
+//     });
+//   } catch (err) {
+//     console.log(err);
+//     res.status(500).send("Internal server error");
+//   }
+// };
+
+exports.editParent = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-
-    if (!name || !email || !password) {
-      return res.status(400).send("Required fields missing");
-    }
-    const existingUser = await User.userDetailsByEmail({ email });
-
-    if (existingUser.length > 0) {
-      return res.status(400).send("Email already exists");
-    }
-    let salt = await bcrypt.genSalt(10);
-    req.body.password = await bcrypt.hash(req.body.password, salt);
-    let addUser = await User.insertUser({
-      ...req.body,
-      role_id: 4,
+    const parentData = await Parent.getParentById({
+      parent_id: req.params.id,
     });
-    await Parent.insertParent({
-      ...req.body,
-      user_id: addUser,
+
+    if (!parentData.length) {
+      return res.status(404).json({
+        success: false,
+        message: "Parent not found",
+      });
+    }
+    const parent = parentData[0];
+
+    // PROFILE IMAGE
+
+    let profileImage = parent.profile_image;
+    if (req.file) {
+      profileImage = req.file.filename;
+    }
+
+    // UPDATE USER TABLE
+
+    await User.updateParentUser({
+      user_id: parent.user_id,
+      name: req.body.name,
+      email: req.body.email,
+      phone: req.body.phone,
+      address: req.body.address,
+      date_of_birth: req.body.date_of_birth,
+      gender: req.body.gender,
+      profile_image: profileImage,
     });
-    res.status(201).json({
+
+    // UPDATE PARENT TABLE
+
+    await Parent.updateParent({
+      parent_id: parent.parent_id,
+      occupation: req.body.occupation,
+      emergency_contact: req.body.emergency_contact,
+      status: req.body.status,
+    });
+
+    return res.status(200).json({
       success: true,
-      message: "Parent added successfully",
-      user_id: addUser,
+      message: "Parent updated successfully",
+      data: parent
     });
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal server error");
+    return res.status(500).json({
+      success: false,
+      message: err.sqlMessage || "Internal server error",
+    });
   }
 };
 
@@ -85,6 +142,7 @@ exports.parentList = async (req, res) => {
           address: item.address,
           occupation: item.occupation,
           relation_with_student: item.relation_with_student,
+          login_access: Boolean(item.login_access),
           children: [],
         };
         parents.push(existingParent);
@@ -101,8 +159,8 @@ exports.parentList = async (req, res) => {
           class_name: item.class_name,
           section_name: item.section_name,
           relation: item.relation,
-          class_id:item.class_id,
-          section_id:item.section_id
+          class_id: item.class_id,
+          section_id: item.section_id,
         });
       }
     });
@@ -121,18 +179,16 @@ exports.parentList = async (req, res) => {
   }
 };
 
-
 exports.parentDetailsById = async (req, res) => {
   try {
-
     const rows = await Parent.getParentById({
-      parent_id: req.query.parent_id
+      parent_id: req.query.parent_id,
     });
 
     if (!rows.length) {
       return res.status(404).json({
         success: false,
-        message: "Parent not found"
+        message: "Parent not found",
       });
     }
 
@@ -143,16 +199,19 @@ exports.parentDetailsById = async (req, res) => {
       parent_name: rows[0].parent_name,
       parent_email: rows[0].parent_email,
       parent_phone: rows[0].parent_phone,
+      parent_gender: rows[0].parent_gender,
       address: rows[0].address,
       occupation: rows[0].occupation,
       relation_with_student: rows[0].relation_with_student,
       parent_profile_image: rows[0].parent_profile_image,
       parent_status: rows[0].parent_status,
+      parent_code: rows[0].parent_code,
 
       children: rows.map((item) => ({
         student_id: item.student_id,
         student_name: item.student_name,
         student_email: item.student_email,
+        student_profile_image: item.profile_image,
         gender: item.gender,
         admission_no: item.admission_no,
         roll_no: item.roll_no,
@@ -160,21 +219,19 @@ exports.parentDetailsById = async (req, res) => {
         section_id: item.section_id,
         class_name: item.class_name,
         section_name: item.section_name,
-        relation: item.relation
-      }))
+        relation: item.relation,
+        status: item.status,
+      })),
     };
 
     return res.status(200).json({
       success: true,
-      data: parent
+      data: parent,
     });
-
   } catch (err) {
-
     return res.status(500).json({
       success: false,
-      message: err.sqlMessage || err.message || "Internal server error"
+      message: err.sqlMessage || err.message || "Internal server error",
     });
-
   }
 };
