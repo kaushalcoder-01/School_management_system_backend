@@ -39,17 +39,21 @@ Teacher.getTeacherList = async (req) => {
     ut.phone,
     ut.gender,
     ut.profile_image,
+    ut.status,
 
     tt.qualification,
     tt.experience,
     tt.employee_code,
     tt.subject_specialization,
+    tt.salary,
 
     sub.name AS subject_name,
 
     cl.name AS class_name,
+    cl.id AS class_id,
 
     sec.name AS section_name,
+    sec.id AS section_id,
 
     CASE
         WHEN sec.class_teacher_id = tt.id
@@ -174,8 +178,9 @@ WHERE sec.class_teacher_id = '${req.teacher_id}'`;
   }
 };
 
-Teacher.getNextEmployeeCode = async () => {
-  let sqlQuery = " SELECT IFNULL(MAX(id), 0) + 1 AS next_id FROM teachers";
+Teacher.getNextEmployeeCode = async (req) => {
+  let sqlQuery =
+    "SELECT id  FROM users WHERE username='" + req.employeeCode + "'";
   let rows = await sql.query(sqlQuery);
   if (rows.length) {
     return rows;
@@ -207,6 +212,64 @@ Teacher.getSectionList = async (req) => {
   } else {
     return [];
   }
+};
+
+Teacher.getSubjectList = async (req) => {
+  let sqlQuery =
+    "SELECT id, name FROM sections WHERE class_id='" +
+    req.class_id +
+    "' ORDER BY name ASC";
+
+  let rows = await sql.query(sqlQuery);
+  console.log(rows);
+  if (rows.length) {
+    return rows;
+  } else {
+    return [];
+  }
+};
+
+Teacher.addTeacherSubject = async (req) => {
+  let sqlQuery ="INSERT INTO teacher_subjects SET teacher_id='" +req.teacher_id +"', subject_id='" +req.subject_id +"', class_id='" +req.class_id + "', section_id='" +  req.section_id +  "'";
+  let insert = await sql.query(sqlQuery);
+  if (insert.insertId) {
+    return insert.insertId;
+  } else {
+    return;
+  }
+};
+
+Teacher.assignClassTeacher = async (req) => {
+  let sqlQuery = "UPDATE sections SET class_teacher_id='" + req.teacher_id + "' WHERE id='" +req.section_id +"'";
+  return await sql.query(sqlQuery);
+};
+
+Teacher.getSectionClassTeacher = async (req) => {
+
+  let sqlQuery = `
+  
+    SELECT 
+      sec.id,
+      sec.name AS section_name,
+      cl.name AS class_name,
+      sec.class_teacher_id,
+      u.name AS teacher_name
+
+    FROM sections sec
+
+    INNER JOIN classes cl
+    ON sec.class_id = cl.id
+
+    LEFT JOIN teachers t
+    ON sec.class_teacher_id = t.id
+
+    LEFT JOIN users u
+    ON t.user_id = u.id
+
+    WHERE sec.id='${req.section_id}'
+  `;
+
+  return await sql.query(sqlQuery);
 };
 
 module.exports = Teacher;

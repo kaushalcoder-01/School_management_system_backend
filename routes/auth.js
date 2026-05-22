@@ -5,6 +5,7 @@ const userController     = require('../controllers/user.controller');
 const teacherController  = require('../controllers/teacher.controller');
 const parentController   = require('../controllers/parent.controller');
 const studentController   = require('../controllers/student.controller');
+const subjectController  = require('../controllers/subject.controller');
 const upload             = require('../helpers/uploadmiddleware.helper');
 
 router.post('/login', userController.login);
@@ -17,6 +18,7 @@ router.get('/teacherlist', loggedIn, isTeacherOrAdmin, teacherController.teacher
 router.get('/teacherdetails', loggedIn, isTeacherOrAdmin, teacherController.getTeacherDetails);
 router.get(  '/classlist', loggedIn, isTeacherOrAdmin, teacherController.getClassList);
 router.post(  '/sectionlist', loggedIn, isTeacherOrAdmin, teacherController.getSectionList);
+router.get(  '/subjectlist', loggedIn, isTeacherOrAdmin, subjectController.getSubjectList);
 
 //parents
 // router.post('/addparent', loggedIn, isTeacherOrAdmin, parentController.addParent);
