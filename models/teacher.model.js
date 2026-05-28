@@ -29,6 +29,22 @@ Teacher.insertTeacher = async (req) => {
   }
 };
 
+Teacher.updateTeacher = async (req) => {
+
+  let sqlQuery = `
+    UPDATE teachers
+    SET
+      qualification='${req.qualification}',
+      experience='${req.experience}',
+      subject_specialization='${req.subject_specialization}',
+      joining_date='${req.joining_date}',
+      salary='${req.salary}',
+      emergency_contact='${req.emergency_contact}'
+    WHERE id='${req.teacher_id}'
+  `;
+  return await sql.query(sqlQuery);
+};
+
 Teacher.getTeacherList = async (req) => {
   let sqlQuery = `
     SELECT
@@ -320,6 +336,31 @@ Teacher.checkSubjectAlreadyAssigned = async (req) => {
     WHERE ts.subject_id='${req.subject_id}'
     AND ts.class_id='${req.class_id}'
     AND ts.section_id='${req.section_id}'
+  `;
+
+  return await sql.query(sqlQuery);
+};
+
+Teacher.checkSubjectAlreadyAssignedForUpdate =async (req) => {
+
+  let sqlQuery = `
+  
+    SELECT 
+      ts.id,
+      u.name AS teacher_name
+
+    FROM teacher_subjects ts
+
+    INNER JOIN teachers t
+    ON ts.teacher_id = t.id
+
+    INNER JOIN users u
+    ON t.user_id = u.id
+
+    WHERE ts.subject_id='${req.subject_id}'
+    AND ts.class_id='${req.class_id}'
+    AND ts.section_id='${req.section_id}'
+    AND ts.teacher_id!='${req.teacher_id}'
   `;
 
   return await sql.query(sqlQuery);

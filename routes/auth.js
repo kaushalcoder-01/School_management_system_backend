@@ -13,9 +13,10 @@ router.post( "/setup-password", userController.setupPassword);
 router.post('/adduser', loggedIn, isAdmin, userController.addUser);
 
 //teachers
-router.post('/addteacher', loggedIn, isAdmin, teacherController.addTeacher);
+router.post('/addteacher', loggedIn, isAdmin, upload.single('profile_image'),teacherController.addTeacher);
+router.post('/editteacher/:id', loggedIn, isAdmin, upload.single('profile_image'),teacherController.updateTeacher);
 router.get('/teacherlist', loggedIn, isTeacherOrAdmin, teacherController.teacherListByClassAndSection);
-router.get('/teacherdetails', loggedIn, isTeacherOrAdmin, teacherController.getTeacherDetails);
+router.get('/teacherdetails', loggedIn, isAdmin, teacherController.getTeacherDetails);
 router.get(  '/classlist', loggedIn, isTeacherOrAdmin, teacherController.getClassList);
 router.post(  '/sectionlist', loggedIn, isTeacherOrAdmin, teacherController.getSectionList);
 router.get(  '/classteachersection', loggedIn, isTeacherOrAdmin, teacherController.getClassTeacherSections);
