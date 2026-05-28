@@ -61,14 +61,9 @@ exports.editParent = async (req, res) => {
     // UPDATE USER TABLE
 
     await User.updateParentUser({
+      ...req.body,
       user_id: parent.user_id,
-      name: req.body.name,
-      email: req.body.email,
-      phone: req.body.phone,
-      address: req.body.address,
-      date_of_birth: req.body.date_of_birth,
-      gender: req.body.gender,
-      profile_image: profileImage,
+      profile_image: req.file ? req.file.filename : parentData.profile_image,
     });
 
     // UPDATE PARENT TABLE

@@ -260,6 +260,7 @@ exports.editStudent = async (req, res) => {
     // ✅ UPDATE USER TABLE
     await User.updateUser({
       ...req.body,
+      profile_image: req.file ? req.file.filename : student.profile_image,
       user_id: student.userId,
     });
 
@@ -337,7 +338,6 @@ exports.editStudent = async (req, res) => {
 
 exports.studentDetailsById = async (req, res) => {
   try {
-
     const rows = await Student.getStudentById(req.query);
     if (!rows.length) {
       return res.status(404).json({
@@ -352,7 +352,6 @@ exports.studentDetailsById = async (req, res) => {
     });
 
     const response = {
-
       student_id: rows[0].studentId,
 
       userId: rows[0].userId,
@@ -387,12 +386,14 @@ exports.studentDetailsById = async (req, res) => {
       father_name: rows[0].father_name,
       father_phone: rows[0].father_phone,
       father_email: rows[0].father_email,
+      father_profile_image: rows[0].father_profile_image,
       father_occupation: rows[0].father_occupation,
       father_login_access: Boolean(rows[0].login_access),
 
       mother_name: rows[0].mother_name,
       mother_phone: rows[0].mother_phone,
       mother_email: rows[0].mother_email,
+      mother_profile_image: rows[0].mother_profile_image,
       mother_occupation: rows[0].mother_occupation,
       mother_login_access: Boolean(rows[0].login_access),
 
@@ -406,9 +407,9 @@ exports.studentDetailsById = async (req, res) => {
       success: true,
       data: response,
     });
-
+    console.log("REQ FILE =>", req.file);
+    console.log("REQ BODY =>", req.body);
   } catch (err) {
-
     console.log(err);
 
     return res.status(500).json({

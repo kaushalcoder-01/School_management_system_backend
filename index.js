@@ -19,11 +19,19 @@ const file2 		= config.CERT_FILE2;
 const file3			= config.CERT_FILE3;
 
 const port 			= config.API_PORT;
+const path         = require('path');
 
 const app 			= express(); 
 app.use(compression());
-app.use(helmet());
-app.use(cors());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: false,
+  })
+);
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+}));
 app.use(express.json()); 
  
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -46,6 +54,10 @@ app.get('/', (req, resp) => {
 app.get('/auth/google',  passport.authenticate('google', { scope: ['profile','email'] }))
 
 // Route Middlewares
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, 'uploads'))
+);
  app.use('/api/user', authRoute);
  app.use('/api/teacher', authRoute);
  app.use('/api/parent', authRoute);
