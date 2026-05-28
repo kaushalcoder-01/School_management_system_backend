@@ -18,10 +18,9 @@ router.get('/teacherlist', loggedIn, isTeacherOrAdmin, teacherController.teacher
 router.get('/teacherdetails', loggedIn, isTeacherOrAdmin, teacherController.getTeacherDetails);
 router.get(  '/classlist', loggedIn, isTeacherOrAdmin, teacherController.getClassList);
 router.post(  '/sectionlist', loggedIn, isTeacherOrAdmin, teacherController.getSectionList);
-router.get(  '/subjectlist', loggedIn, isTeacherOrAdmin, subjectController.getSubjectList);
+router.get(  '/classteachersection', loggedIn, isTeacherOrAdmin, teacherController.getClassTeacherSections);
 
 //parents
-// router.post('/addparent', loggedIn, isTeacherOrAdmin, parentController.addParent);
 router.post('/editparent/:id' ,loggedIn, isTeacherOrAdmin,upload.single('profile_image'),parentController.editParent);
 router.post('/searchparent', loggedIn, isTeacherOrAdmin, parentController.searchParent);
 router.get('/parentlist', loggedIn, isTeacherOrAdmin, parentController.parentList);
@@ -35,6 +34,9 @@ router.get('/studentlist', loggedIn, isTeacherOrAdmin, studentController.student
 router.get('/markattendance', loggedIn, isTeacherOrAdmin, studentController.markAttendance);
 router.get('/studentattendancelist', loggedIn, isTeacherOrAdmin, studentController.studentAttendanceList);
 router.post('/studentattendancebyid', loggedIn, isTeacherOrAdmin, studentController.getStudentAttendanceById);
+
+//subject
+router.get(  '/subjectlist', loggedIn, isTeacherOrAdmin, subjectController.getSubjectList);
 
 
 

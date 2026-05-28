@@ -97,6 +97,8 @@ Teacher.getTeacherById = async (req) => {
     ut.phone,
     ut.gender,
     ut.profile_image,
+    ut.status,
+    ut.address,
 
     tt.qualification,
     tt.experience,
@@ -267,6 +269,57 @@ Teacher.getSectionClassTeacher = async (req) => {
     ON t.user_id = u.id
 
     WHERE sec.id='${req.section_id}'
+  `;
+
+  return await sql.query(sqlQuery);
+};
+
+Teacher.getClassTeacherSections = async () => {
+  let sqlQuery = `
+  
+    SELECT 
+      sec.id AS section_id,
+      cl.name AS class_name,
+      sec.name AS section_name,
+      sec.class_teacher_id,
+      COALESCE(u.name, 'Available') AS teacher_name
+
+    FROM sections sec
+
+    INNER JOIN classes cl
+    ON sec.class_id = cl.id
+
+    LEFT JOIN teachers t
+    ON sec.class_teacher_id = t.id
+
+    LEFT JOIN users u
+    ON t.user_id = u.id
+
+    ORDER BY cl.name, sec.name
+  `;
+
+  return await sql.query(sqlQuery);
+};
+
+Teacher.checkSubjectAlreadyAssigned = async (req) => {
+
+  let sqlQuery = `
+  
+    SELECT 
+      ts.id,
+      u.name AS teacher_name
+
+    FROM teacher_subjects ts
+
+    INNER JOIN teachers t
+    ON ts.teacher_id = t.id
+
+    INNER JOIN users u
+    ON t.user_id = u.id
+
+    WHERE ts.subject_id='${req.subject_id}'
+    AND ts.class_id='${req.class_id}'
+    AND ts.section_id='${req.section_id}'
   `;
 
   return await sql.query(sqlQuery);

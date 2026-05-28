@@ -64,6 +64,20 @@ exports.addTeacher = async (req, res) => {
     }
 
     for (const item of assignments) {
+      const alreadyAssigned = await Teacher.checkSubjectAlreadyAssigned({
+        subject_id: item.subject_id,
+        class_id: item.class_id,
+        section_id: item.section_id,
+      });
+
+      if (alreadyAssigned.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message:
+            `${alreadyAssigned[0].teacher_name} already assigned ` +
+            `for this subject in selected class and section`,
+        });
+      }
       await Teacher.addTeacherSubject({
         teacher_id: teacherId,
         subject_id: item.subject_id,
@@ -103,7 +117,7 @@ exports.addTeacher = async (req, res) => {
         section_id: req.body.class_teacher_section_id,
       });
     }
-console.log("CLASS TEACHER MESSAGE", classTeacherMessage);
+    console.log("CLASS TEACHER MESSAGE", classTeacherMessage);
     return res.status(201).json({
       success: true,
       message: "Teacher added successfully",
@@ -203,6 +217,29 @@ exports.getTeacherDetails = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: err.sqlMessage || err.message || "Internal server error",
+    });
+  }
+};
+
+exports.getClassTeacherSections = async (req, res) => {
+  try {
+    const data = await Teacher.getClassTeacherSections();
+
+    const formattedData = data.map((item) => ({
+      section_id: item.section_id,
+      class_section: `${item.class_name} - ${item.section_name}`,
+      class_teacher: item.teacher_name,
+      is_assigned: item.teacher_name !== "No Class Teacher",
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data: formattedData,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.sqlMessage || err.message,
     });
   }
 };
