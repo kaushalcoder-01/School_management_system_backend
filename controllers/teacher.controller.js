@@ -3,6 +3,7 @@ const Teacher = require("../models/teacher.model");
 const config = require("../config/config");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Dashboard = require("../models/Dashboard.model");
 
 exports.generateUniqueEmployeeCode = async () => {
   let isExists = true;
@@ -55,6 +56,12 @@ exports.addTeacher = async (req, res) => {
       user_id: userId,
       employee_code: employeeCode,
     });
+    await Dashboard.addLog({
+      activity_type: "TEACHER",
+      title: "Teacher Added",
+      description: `${req.name} added as teacher`,
+      created_by: req.user.id,
+    });
 
     // SUBJECT ASSIGNMENTS
 
@@ -87,7 +94,6 @@ exports.addTeacher = async (req, res) => {
     }
 
     // CLASS TEACHER VALIDATION
-    console.log(req.body.class_teacher_section_id);
     let classTeacherMessage = "";
     if (
       req.body.class_teacher_section_id &&
@@ -101,13 +107,13 @@ exports.addTeacher = async (req, res) => {
       const section = sectionData[0];
       if (section.class_teacher_id) {
         classTeacherMessage =
-          `${section.class_name} - ${section.section_name} already had ` +
-          `${section.teacher_name} as class teacher. ` +
+          `${section.class_section} already had ` +
+          `${section.class_teacher} as class teacher. ` +
           `Now changed to ${req.body.name}.`;
       } else {
         classTeacherMessage =
           `${req.body.name} is now assigned as class teacher of ` +
-          `${section.class_name} - ${section.section_name}.`;
+          `${section.class_section}.`;
       }
 
       // UPDATE CLASS TEACHER
@@ -116,8 +122,13 @@ exports.addTeacher = async (req, res) => {
         teacher_id: teacherId,
         section_id: req.body.class_teacher_section_id,
       });
+      await Dashboard.addLog({
+        activity_type: "TEACHER",
+        title: "Teacher Assigned",
+        description: `${teacherName} assigned to ${req.class_name} `,
+        created_by: req.user.id,
+      });
     }
-    console.log("CLASS TEACHER MESSAGE", classTeacherMessage);
     return res.status(201).json({
       success: true,
       message: "Teacher added successfully",
@@ -247,35 +258,7 @@ exports.updateTeacher = async (req, res) => {
 exports.teacherListByClassAndSection = async (req, res) => {
   try {
     let classbyid = await Teacher.getTeacherList(req.body);
-    console.log(classbyid);
     res.status(200).send(classbyid);
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Internal server error");
-  }
-};
-
-exports.getClassList = async (req, res) => {
-  try {
-    let classList = await Teacher.getClassList();
-
-    res.status(200).json({
-      success: true,
-      data: classList,
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).send("Internal server error");
-  }
-};
-
-exports.getSectionList = async (req, res) => {
-  try {
-    let sectionList = await Teacher.getSectionList(req.body);
-    res.status(200).json({
-      success: true,
-      data: sectionList,
-    });
   } catch (err) {
     console.log(err);
     res.status(500).send("Internal server error");
@@ -340,7 +323,7 @@ exports.getClassTeacherSections = async (req, res) => {
       section_id: item.section_id,
       class_section: `${item.class_name} - ${item.section_name}`,
       class_teacher: item.teacher_name,
-      is_assigned: item.teacher_name !== "No Class Teacher",
+      is_assigned: !!item.class_teacher_id,
     }));
 
     return res.status(200).json({

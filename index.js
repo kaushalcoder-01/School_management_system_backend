@@ -58,17 +58,16 @@ app.use(
   '/uploads',
   express.static(path.join(__dirname, 'uploads'))
 );
- app.use('/api/user', authRoute);
- app.use('/api/teacher', authRoute);
- app.use('/api/parent', authRoute);
- app.use('/api/student', authRoute);
- app.use('/api/subject', authRoute);
-
-
+ app.use("/api/user", authRoute);
+ app.use("/api/teacher", authRoute);
+ app.use("/api/parent", authRoute);
+ app.use("/api/student", authRoute);
+ app.use("/api/subject", authRoute);
+ app.use("/api/class", authRoute);
+ app.use("/api/dashboard", authRoute);
 
 var options = {};
 
- 
 app.listen(port, function() {
     console.log('App listening on port : '+port);
 });

@@ -6,8 +6,14 @@ const teacherController  = require('../controllers/teacher.controller');
 const parentController   = require('../controllers/parent.controller');
 const studentController   = require('../controllers/student.controller');
 const subjectController  = require('../controllers/subject.controller');
+const classController    = require('../controllers/class.controller');
+const dashboardController = require('../controllers/dashboard.controller')
 const upload             = require('../helpers/uploadmiddleware.helper');
 
+//dashboard
+router.get('/summary', loggedIn, isTeacherOrAdmin, dashboardController.getDashboardSummary);
+router.get('/activitylog', loggedIn, isTeacherOrAdmin, dashboardController.getActivityLog);
+//user
 router.post('/login', userController.login);
 router.post( "/setup-password", userController.setupPassword);
 router.post('/adduser', loggedIn, isAdmin, userController.addUser);
@@ -17,9 +23,7 @@ router.post('/addteacher', loggedIn, isAdmin, upload.single('profile_image'),tea
 router.post('/editteacher/:id', loggedIn, isAdmin, upload.single('profile_image'),teacherController.updateTeacher);
 router.get('/teacherlist', loggedIn, isTeacherOrAdmin, teacherController.teacherListByClassAndSection);
 router.get('/teacherdetails', loggedIn, isAdmin, teacherController.getTeacherDetails);
-router.get(  '/classlist', loggedIn, isTeacherOrAdmin, teacherController.getClassList);
-router.post(  '/sectionlist', loggedIn, isTeacherOrAdmin, teacherController.getSectionList);
-router.get(  '/classteachersection', loggedIn, isTeacherOrAdmin, teacherController.getClassTeacherSections);
+router.get('/classteachersection', loggedIn, isTeacherOrAdmin, teacherController.getClassTeacherSections);
 
 //parents
 router.post('/editparent/:id' ,loggedIn, isTeacherOrAdmin,upload.single('profile_image'),parentController.editParent);
@@ -38,6 +42,13 @@ router.post('/studentattendancebyid', loggedIn, isTeacherOrAdmin, studentControl
 
 //subject
 router.get(  '/subjectlist', loggedIn, isTeacherOrAdmin, subjectController.getSubjectList);
+router.post(  '/savesubject', loggedIn, isTeacherOrAdmin, subjectController.saveSubject);
+
+//classes
+router.get(  '/classlist', loggedIn, isTeacherOrAdmin, classController.getClassList);
+router.post(  '/sectionlist', loggedIn, isTeacherOrAdmin, classController.getSectionList);
+router.post(  '/saveclass', loggedIn, isTeacherOrAdmin, classController.saveClass);
+router.get(  '/classteacherlist', loggedIn, isTeacherOrAdmin, classController.getTeachersForClass);
 
 
 

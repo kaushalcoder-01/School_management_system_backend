@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const MailService = require("../services/mail.service");
 const parentController = require("../controllers/parent.controller");
+const Dashboard = require("../models/Dashboard.model");
 
 exports.generateUniqueAdmissionNo = async () => {
   let isExists = true;
@@ -102,6 +103,13 @@ exports.addStudent = async (req, res) => {
       admission_date: req.body.admission_date,
       blood_group: req.body.blood_group,
       academic_year: req.body.academic_year,
+    });
+
+    await Dashboard.addLog({
+      activity_type: "STUDENT",
+      title: "Student Added",
+      description: `${req.name} added to ${req.class_name}`,
+      created_by: req.user.id,
     });
 
     await MailService.sendSetupMail(email, admissionNo, token);

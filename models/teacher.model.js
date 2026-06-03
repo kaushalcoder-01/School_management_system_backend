@@ -30,7 +30,6 @@ Teacher.insertTeacher = async (req) => {
 };
 
 Teacher.updateTeacher = async (req) => {
-
   let sqlQuery = `
     UPDATE teachers
     SET
@@ -63,36 +62,22 @@ Teacher.getTeacherList = async (req) => {
     tt.subject_specialization,
     tt.salary,
 
-    sub.name AS subject_name,
-
-    cl.name AS class_name,
-    cl.id AS class_id,
-
-    sec.name AS section_name,
-    sec.id AS section_id,
-
-    CASE
-        WHEN sec.class_teacher_id = tt.id
-        THEN 1
-        ELSE 0
-    END AS is_class_teacher
+     CONCAT(
+      cl.name,
+      ' - ',
+      sec.name
+    ) AS class_teacher_of
 
     FROM teachers tt
 
     INNER JOIN users ut
     ON tt.user_id = ut.id
 
-    LEFT JOIN teacher_subjects ts
-    ON ts.teacher_id = tt.id
-
-    LEFT JOIN subjects sub
-    ON ts.subject_id = sub.id
+    LEFT JOIN sections sec
+    ON sec.class_teacher_id = tt.id
 
     LEFT JOIN classes cl
-    ON ts.class_id = cl.id
-
-    LEFT JOIN sections sec
-    ON ts.section_id = sec.id
+    ON sec.class_id = cl.id
 
     ORDER BY tt.id DESC;`;
   let rows = await sql.query(sqlQuery);
@@ -115,6 +100,7 @@ Teacher.getTeacherById = async (req) => {
     ut.profile_image,
     ut.status,
     ut.address,
+    ut.date_of_birth,
 
     tt.qualification,
     tt.experience,
@@ -207,31 +193,6 @@ Teacher.getNextEmployeeCode = async (req) => {
   }
 };
 
-Teacher.getClassList = async () => {
-  let sqlQuery = "SELECT id, name FROM classes ORDER BY id ASC";
-  let rows = await sql.query(sqlQuery);
-  if (rows.length) {
-    return rows;
-  } else {
-    return [];
-  }
-};
-
-Teacher.getSectionList = async (req) => {
-  let sqlQuery =
-    "SELECT id, name FROM sections WHERE class_id='" +
-    req.class_id +
-    "' ORDER BY name ASC";
-
-  let rows = await sql.query(sqlQuery);
-  console.log(rows);
-  if (rows.length) {
-    return rows;
-  } else {
-    return [];
-  }
-};
-
 Teacher.getSubjectList = async (req) => {
   let sqlQuery =
     "SELECT id, name FROM sections WHERE class_id='" +
@@ -248,7 +209,16 @@ Teacher.getSubjectList = async (req) => {
 };
 
 Teacher.addTeacherSubject = async (req) => {
-  let sqlQuery ="INSERT INTO teacher_subjects SET teacher_id='" +req.teacher_id +"', subject_id='" +req.subject_id +"', class_id='" +req.class_id + "', section_id='" +  req.section_id +  "'";
+  let sqlQuery =
+    "INSERT INTO teacher_subjects SET teacher_id='" +
+    req.teacher_id +
+    "', subject_id='" +
+    req.subject_id +
+    "', class_id='" +
+    req.class_id +
+    "', section_id='" +
+    req.section_id +
+    "'";
   let insert = await sql.query(sqlQuery);
   if (insert.insertId) {
     return insert.insertId;
@@ -258,20 +228,33 @@ Teacher.addTeacherSubject = async (req) => {
 };
 
 Teacher.assignClassTeacher = async (req) => {
-  let sqlQuery = "UPDATE sections SET class_teacher_id='" + req.teacher_id + "' WHERE id='" +req.section_id +"'";
+  let sqlQuery =
+    "UPDATE sections SET class_teacher_id='" +
+    req.teacher_id +
+    "' WHERE id='" +
+    req.section_id +
+    "'";
   return await sql.query(sqlQuery);
 };
 
 Teacher.getSectionClassTeacher = async (req) => {
-
   let sqlQuery = `
   
     SELECT 
-      sec.id,
-      sec.name AS section_name,
-      cl.name AS class_name,
+      sec.id AS section_id,
+
+      CONCAT(
+        cl.name,
+        ' - ',
+        sec.name
+      ) AS class_section,
+
       sec.class_teacher_id,
-      u.name AS teacher_name
+
+      IFNULL(
+        u.name,
+        'No Class Teacher'
+      ) AS class_teacher
 
     FROM sections sec
 
@@ -298,7 +281,12 @@ Teacher.getClassTeacherSections = async () => {
       cl.name AS class_name,
       sec.name AS section_name,
       sec.class_teacher_id,
-      COALESCE(u.name, 'Available') AS teacher_name
+      COALESCE(u.name, 'Available') AS teacher_name,
+
+    CASE
+        WHEN sec.class_teacher_id IS NULL THEN 0
+        ELSE 1
+    END AS is_assigned
 
     FROM sections sec
 
@@ -318,7 +306,6 @@ Teacher.getClassTeacherSections = async () => {
 };
 
 Teacher.checkSubjectAlreadyAssigned = async (req) => {
-
   let sqlQuery = `
   
     SELECT 
@@ -341,8 +328,7 @@ Teacher.checkSubjectAlreadyAssigned = async (req) => {
   return await sql.query(sqlQuery);
 };
 
-Teacher.checkSubjectAlreadyAssignedForUpdate =async (req) => {
-
+Teacher.checkSubjectAlreadyAssignedForUpdate = async (req) => {
   let sqlQuery = `
   
     SELECT 
