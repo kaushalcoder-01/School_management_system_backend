@@ -17,7 +17,10 @@ exports.saveClass = async (req, res) => {
     let classId;
 
     if (id) {
-      await Class.updateClass(req.body);
+      await Class.updateClass({
+        id,
+        name
+    });
       classId = id;
     } else {
       classId = await Class.insertClass(req.body);
@@ -101,11 +104,38 @@ exports.getSectionList = async (req, res) => {
 
 exports.classById = async (req, res) => {
   try {
-    let classbyid = await Class.getClassById(req.body);
-    res.status(200).send(classbyid);
+
+    const rows = await Class.getClassById(req.query);
+
+    if (!rows.length) {
+      return res.status(404).json({
+        success: false,
+        message: "Class not found"
+      });
+    }
+
+    const response = {
+      id: rows[0].classId,
+      name: rows[0].name,
+      sections: rows.map(row => ({
+        id: row.section_id,
+        name: row.section_name,
+        class_teacher_id: row.class_teacher_id
+      }))
+    };
+
+    return res.status(200).json({
+      success: true,
+      data: response
+    });
+
   } catch (err) {
     console.log(err);
-    res.status(500).send("Internal server error");
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error"
+    });
   }
 };
 

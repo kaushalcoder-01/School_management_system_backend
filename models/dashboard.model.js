@@ -37,7 +37,7 @@ Dashboard.addLog = async (req) => {
 };
 
 Dashboard.getLog = async () => {
-  const sqlQuery = ` SELECT * FROM activity_logs `;
+  const sqlQuery = ` SELECT * FROM activity_logs ORDER BY id DESC LIMIT 8  `;
 
   let rows = await sql.query(sqlQuery);
   if (rows.length) {

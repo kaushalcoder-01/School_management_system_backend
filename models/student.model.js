@@ -240,6 +240,10 @@ Student.getAttendanceById = async (req, res) => {
   let sqlQuery =
     "SELECT date, status FROM attendance  WHERE student_id='" +
     req.student_id +
+    "' AND class_id ='" +
+    req.class_id +
+      "' AND class_id ='" +
+    req.class_id +
     "' AND MONTH(date)='" +
     req.month +
     "' AND YEAR(date)='" +

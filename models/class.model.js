@@ -13,7 +13,7 @@ Class.insertClass = async (req) => {
 };
 
 Class.updateClass = async (req) => {
-  const sqlQuery = ` UPDATE classes SET name = '${req.name}' WHERE id =  ${req.id} `;
+  const sqlQuery = ` UPDATE classes SET name = '${req.name}' WHERE id =  '${req.id}' `;
   let insert = await sql.query(sqlQuery);
   if (insert.insertId) {
     return insert.insertId;
@@ -23,7 +23,8 @@ Class.updateClass = async (req) => {
 };
 
 Class.insertSection = async (req) => {
-  const sqlQuery = `  INSERT INTO sections SET  class_id =  ${req.class_id}, name =  '${req.name}', class_teacher_id=  ${req.class_teacher_id} `;
+  const teacherId = req.class_teacher_id ? req.class_teacher_id : null;
+  const sqlQuery = `  INSERT INTO sections SET  class_id =  ${req.class_id}, name =  '${req.name}', class_teacher_id=  ${teacherId === null ? 'NULL' : teacherId} `;
   let insert = await sql.query(sqlQuery);
   if (insert.insertId) {
     return insert.insertId;
@@ -33,7 +34,8 @@ Class.insertSection = async (req) => {
 };
 
 Class.updateSection = async (req) => {
-  const sqlQuery = ` UPDATE sections SET name =  '${req.name}', class_teacher_id=  ${req.class_teacher_id}, WHERE id =  ${req.id}`;
+  const teacherId = req.class_teacher_id ? req.class_teacher_id : null;
+  const sqlQuery = ` UPDATE sections SET name ='${req.name}', class_teacher_id=  ${teacherId === null ? 'NULL' : teacherId} WHERE id =  ${req.id}`;
   let insert = await sql.query(sqlQuery);
   if (insert.insertId) {
     return insert.insertId;
@@ -59,7 +61,6 @@ Class.getSectionList = async (req) => {
     "' ORDER BY name ASC";
 
   let rows = await sql.query(sqlQuery);
-  console.log(rows);
   if (rows.length) {
     return rows;
   } else {
@@ -68,7 +69,7 @@ Class.getSectionList = async (req) => {
 };
 
 Class.getClassById = async (req) => {
-  let sqlQuery = "SELECT * FROM classes WHERE id = '" + req.class_id + "'";
+  let sqlQuery = "SELECT cl.id AS classId, cl.name AS name , sec.id AS section_id, sec.name AS section_name, sec.class_teacher_id  FROM classes cl LEFT JOIN sections sec ON sec.class_id = cl.id  WHERE cl.id = '" + req.class_id + "'";
   let rows = await sql.query(sqlQuery);
   if (rows.length) {
     return rows;

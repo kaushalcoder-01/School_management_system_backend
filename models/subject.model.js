@@ -3,9 +3,8 @@ const sql = require("../helpers/db.helper.js");
 const Subject = function () {};
 
 Subject.getSubjectList = async (req) => {
-  let sqlQuery = "SELECT * FROM subjects ORDER BY name ASC";
+  let sqlQuery = "SELECT * FROM subjects ORDER BY id DESC";
   let rows = await sql.query(sqlQuery);
-  console.log(rows);
   if (rows.length) {
     return rows;
   } else {

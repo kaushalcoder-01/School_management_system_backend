@@ -466,6 +466,8 @@ exports.markAttendance = async (req, res) => {
   }
 };
 
+
+//attendance
 exports.studentAttendanceList = async (req, res) => {
   try {
     let student = await Student.getAttendanceList(req.body);

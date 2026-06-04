@@ -49,6 +49,7 @@ router.get(  '/classlist', loggedIn, isTeacherOrAdmin, classController.getClassL
 router.post(  '/sectionlist', loggedIn, isTeacherOrAdmin, classController.getSectionList);
 router.post(  '/saveclass', loggedIn, isTeacherOrAdmin, classController.saveClass);
 router.get(  '/classteacherlist', loggedIn, isTeacherOrAdmin, classController.getTeachersForClass);
+router.get('/classdetails', loggedIn, isTeacherOrAdmin, classController.classById);
 
 
 
