@@ -4,11 +4,13 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 // async function run() {
-//   const hash = await bcrypt.hash("admin@123", 10);
+//   const hash = await bcrypt.hash("student1@gmail.com", 10);
 //   console.log(hash);
 // }
 
 // run();
+
+
 
 exports.login = async (req, res) => {
     try {
@@ -53,7 +55,10 @@ exports.login = async (req, res) => {
                 name: userDetails[0].name,
                 email: userDetails[0].email,
                 role: userDetails[0].role,
-                profile_image: userDetails[0].profile_image
+                profile_image: userDetails[0].profile_image,
+                teacher_id: userDetails[0].teacher_id,
+                student_id: userDetails[0].student_id,
+                parent_id: userDetails[0].parent_id,
             }
         });
     }
@@ -121,5 +126,6 @@ exports.addUser = async (req, res) => {
         res.status(500).send("Internal server error");
     }
 }
+
 
 

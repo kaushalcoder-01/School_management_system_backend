@@ -415,8 +415,6 @@ exports.studentDetailsById = async (req, res) => {
       success: true,
       data: response,
     });
-    console.log("REQ FILE =>", req.file);
-    console.log("REQ BODY =>", req.body);
   } catch (err) {
     console.log(err);
 
